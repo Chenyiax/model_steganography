@@ -8,23 +8,20 @@
 """
 import random
 
-import numpy as np
-import torch
-from torch import nn
-
+from init_function import *
 from model_steganorgraphy import ModelSteganography
-from cover_model import *
+from stego_model import *
 from utils import get_model_params, count_parameters
-
-# 每 1024 个参数嵌入 128 位秘密信息
 
 MAX_NUMS = 5000000
 MIN_NUMS = 1000
 
-task_model = DenseNet()
+task_model = ResNet18()
 print(task_model)
 
-ms = ModelSteganography()
+init_func = init_resnet
+# 面向对象编程, 生成一个模型隐写类
+ms = ModelSteganography(init_func, target_var=1e-4, max_nums=500000)
 # 生成并嵌入秘密信息
 secret_bits, secret_bits_bch = ms.encode(task_model)
 

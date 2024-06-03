@@ -9,7 +9,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cover_model import *
+from stego_model import *
 from model import *
 from utils import get_secretbits, bch_decode
 

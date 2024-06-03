@@ -102,6 +102,16 @@ def init_vgg(m: nn.Module):
 
 
 def init_vit(m: nn.Module):
+    '''
+    visiontransformer的初始化方法，详情请见: torchvision.models.vision_transformer
+
+    Args:
+        m: pytorch模型的某一层
+
+    Returns:
+        weight_var: 这层权重初始化时所需要的方差
+        bias_var: 这层偏置初始化时所需要的方差
+    '''
     if isinstance(m, nn.Linear):
         weight_var, bias_var = kaiming_init_(m.weight, a=math.sqrt(5))
     elif isinstance(m, nn.Conv2d):
@@ -127,4 +137,25 @@ def init_vit(m: nn.Module):
         weight_var = 0
         bias_var = 0
 
+    return weight_var, bias_var
+
+
+def init_nlp(m: nn.Module):
+    '''
+    nlp 模型的初始化方法, 但是 nlp 没有 torchvision 这么方便的东西,所以就用了 pytorch 自带的初始化方法
+
+    Args:
+        m: pytorch模型的某一层
+
+    Returns:
+        weight_var: 这层权重初始化时所需要的方差
+        bias_var: 这层偏置初始化时所需要的方差
+    '''
+    if isinstance(m, nn.Linear):
+        weight_var, bias_var = kaiming_init_(m.weight, a=math.sqrt(5))
+    elif isinstance(m, nn.Conv2d):
+        weight_var, bias_var = kaiming_init_(m.weight)
+    else:
+        weight_var = 1
+        bias_var = 0
     return weight_var, bias_var

@@ -11,12 +11,12 @@ from tqdm import tqdm
 from get_data import get_cnn_data
 from init_function import init_vit
 from model_steganorgraphy import ModelSteganography
-from cover_model import *
+from stego_model import *
 from test import test_model
 
 
 
-def train_model(model, train_loader, criterion, optimizer, secret_bits,num_epochs=5, with_secret=True):
+def train_model(model, train_loader, criterion, optimizer,num_epochs=5, with_secret=True):
     '''
     训练模型的函数
     Args:

@@ -6,14 +6,11 @@
 说明: 载体模型文件
     如果用MNIST数据集,记得把输入通道数改为1
 """
-import copy
 import math
 
 import torch
 from torch import nn
 from torchvision import models
-import torch.nn.functional as F
-from transformers import BertModel, BertConfig
 
 
 class AlexNet(nn.Module):
@@ -57,7 +54,7 @@ class ResNet18(nn.Module):
     def __init__(self):
         super(ResNet18, self).__init__()
         self.resnet = models.resnet18(weights=None)
-        self.resnet.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
         self.resnet.fc = nn.Linear(in_features=512, out_features=10, bias=True)
 
     def forward(self, x):

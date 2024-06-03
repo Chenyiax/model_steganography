@@ -9,14 +9,17 @@ import copy
 
 import torch
 
+from init_function import *
 from model_steganorgraphy import ModelSteganography
-from get_data import get_rnn_data, get_cnn_data
-from cover_model import LSTM, TransformerClassifier
+from get_data import get_rnn_data
+from stego_model import LSTM, TransformerClassifier
 from test import test_model
 from train import train_model
 
 
-ms = ModelSteganography(max_nums=50000000, target_var=1e-3)
+init_func = init_nlp
+# 面向对象编程, 生成一个模型隐写类
+ms = ModelSteganography(init_func, target_var=1e-4, max_nums=500000)
 
 train_loader, test_loader, vocab_size, vocab_len = get_rnn_data()
 
@@ -30,11 +33,12 @@ secret_bits, secret_bits_bch = ms.encode(task_model)
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(task_model.parameters(), lr=5e-5)
 
+# 隐写模型训练
 train_model(task_model, train_loader, criterion, optimizer, num_epochs=20)
 test_model(task_model, test_loader, criterion)
 
 # 提取秘密信息
-outputs_secrets, outputs_secrets_bch = ms.decode(task_model, label_model)
+outputs_secrets, outputs_secrets_bch = ms.decode(task_model)
 
 correct = (outputs_secrets == secret_bits).sum().item()
 accuracy = correct / outputs_secrets.numel()

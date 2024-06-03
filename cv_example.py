@@ -8,7 +8,7 @@
 from init_function import *
 from model_steganorgraphy import ModelSteganography
 from get_data import get_cnn_data
-from cover_model import *
+from stego_model import *
 from test import test_model
 from train import train_model
 
@@ -25,12 +25,12 @@ ms = ModelSteganography(init_func, target_var=1e-4, max_nums=500000)
 # 对载体模型进行含秘初始化
 secret_bits, secret_bits_bch = ms.encode(cov_model)
 
-# 载体模型损失函数
+# 隐写模型损失函数
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(cov_model.parameters(), lr=3e-5)
-# 训练和测试载体模型
-# train_model(cov_model, train_loader, criterion, optimizer, secret_bits, num_epochs=100)
-# test_model(cov_model, test_loader, criterion)
+# 训练和测试隐写模型
+train_model(cov_model, train_loader, criterion, optimizer, num_epochs=100)
+test_model(cov_model, test_loader, criterion)
 # 存储载体模型
 torch.save(cov_model, f"models/{cov_model.__class__.__name__}_with_secret.pth")
 # 提取秘密信息

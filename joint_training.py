@@ -13,9 +13,10 @@
 import argparse
 import random
 import torch
+from torch.utils.data import TensorDataset, DataLoader
 
 from get_data import get_cnn_data
-from cover_model import *
+from stego_model import *
 from model import *
 from test import test_model
 from train import train_model
@@ -27,6 +28,7 @@ parser.add_argument('--max_nums', default=500000, type=int,
                     help='最大参数提取数(如果某个层的参数个数超过这个数的参数不生成也不提取)')
 parser.add_argument('--min_nums', default=1000, type=int,
                     help='最大参数提取数(如果某个层的参数个数不足这个数的参数不生成也不提取)')
+parser.add_argument('--var', default=1e-3, type=float, help='生成参数的方差(含秘模型所需要服从的方差)')
 parser.add_argument('--simulation_train', default=True, type=bool, help='开启后直接在任务模型中添加噪声，模拟模型训练')
 parser.add_argument('--simulation_std', default=0.06, type=float, help='模拟训练的方差(不宜过大)')
 parser.add_argument('--simulation_mean', default=0.0027, type=float, help='模拟训练的均值(不宜过大)')
@@ -54,12 +56,17 @@ if not args.simulation_train:
     train_loader, test_loader = get_cnn_data()
 
 task_model = ResNet18()
-params = get_model_params(task_model, max_nums=args.max_nums, min_nums=args.min_nums)
+params = get_model_params(task_model)
+
+# 删除 numel 大于 500000 的张量
+# 如果你的显存够大, 也可以不删
+params = [tensor for tensor in params if tensor.numel() <= 500000]
+
 # 直接用模型的所有参数进行训练
 # 参数越多相当于batchsize越大
 params = torch.concatenate(params)
 
-var = 1e-3
+# 计算生成参数的直方图概率分布, 用于计算 kl 散度
 bins = int(math.sqrt(len(params)))
 hist_tensor, bin_center1 = to_hist_tensor(params, bins)
 
@@ -72,19 +79,24 @@ for i in range(0, epoch):
     secret_bits = get_secretbits_for_train(len(params))
     secret_bits = secret_bits.to(device)
 
-    orignal_params = secret_bits_encoder(secret_bits.to(device), len(params), var)
+    # 生成含有秘密信息的参数
+    orignal_params = secret_bits_encoder(secret_bits.to(device))
+    # 对生成的参数使用最大池化进行裁剪
+    orignal_params = F.adaptive_max_pool1d(orignal_params.view(1, -1), len(params)).view(-1)
+    # 修改生成参数的方差
+    orignal_params = modify_distribution(orignal_params, args.var)
 
     hist_params, bin_center2 = to_hist_tensor(orignal_params, bins)
     kl_divergence = F.kl_div(hist_tensor.log(), hist_params, reduction='sum')
 
     if args.simulation_train:
+        # 如果开启模拟训练, 则训练噪声为随机生成的数据
         random_integer = random.randrange(2)
         if random_integer == 0:
             inaccuracies = torch.normal(args.simulation_mean, args.simulation_std, orignal_params.size()).to(device)
         else:
             inaccuracies = torch.normal(-args.simulation_mean, args.simulation_std, orignal_params.size()).to(device)
     else:
-
         model_params = orignal_params.detach().clone()
         point = 0
         for name, m in task_model.named_modules():
@@ -107,13 +119,18 @@ for i in range(0, epoch):
         test_model(task_model, test_loader, criterion)
 
         # 获取模型参数
-        last_params = torch.concatenate(get_model_params(task_model, max_nums=args.max_nums, min_nums=args.min_nums)).to(device)
+        last_params = torch.concatenate(get_model_params(task_model)).to(device)
         # 训练噪声
         inaccuracies = (last_params - orignal_params).detach()
 
 
     # 对生成的参数添加噪声()
     orignal_params = orignal_params + inaccuracies
+
+    # 修改获取到的影写模型的方差，使其符合神经网络的输入
+    orignal_params = modify_distribution(orignal_params, var=1).view(1, 1, -1)
+    # 对参数进行线性插值至 1024 的倍数
+    orignal_params = interpolate(orignal_params).view(-1, 1024)
 
     outputs = secret_bits_decoder(orignal_params)
 

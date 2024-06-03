@@ -18,7 +18,7 @@ from torch import nn
 
 import torch.nn.functional as F
 from get_data import get_cnn_data, get_rnn_data
-from cover_model import *
+from stego_model import *
 from model import SecretBitsEncoder, SecretBitsDecoder, Discriminator
 from test import test_model
 from train import train_model

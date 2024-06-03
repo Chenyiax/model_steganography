@@ -5,11 +5,8 @@
 
 说明: 获取数据集的代码
 """
-import os
-import re
 import torch
-import numpy as np
-from sklearn.model_selection import train_test_split
+
 from torch.utils.data import Dataset, DataLoader, TensorDataset, random_split
 from torchvision import datasets, transforms
 from transformers import BertTokenizer
@@ -19,6 +16,14 @@ from cutout import Cutout
 
 
 def get_cnn_data():
+    '''
+    获取 CV 数据集
+
+    Returns:
+        train_loader: 训练集数据
+        test_loader: 测试集数据
+
+    '''
     # 定义数据转换
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),  # 随机裁剪，大小为32x32，填充4像素
@@ -55,6 +60,16 @@ def get_cnn_data():
 
 
 def get_rnn_data():
+    '''
+    获取 nlp 数据集
+
+     Returns:
+        train_loader: 训练集数据
+        test_loader: 测试集数据
+        max_token + 1: token 最大值
+        vocab_len: 文本长度
+
+    '''
     cache_dir = 'dataset'
     dataset_name = 'sst2'
     cached_dataset_path = cache_dir + '/' + dataset_name
