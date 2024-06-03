@@ -61,7 +61,7 @@ class Vgg16(nn.Module):
     def __init__(self):
         super(Vgg16, self).__init__()
         self.vgg16 = models.vgg16()
-        self.vgg16.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1)
+        # self.vgg16.features[0] = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
         self.vgg16.classifier[-1] = nn.Linear(4096, 10)
 
     def forward(self, x):
@@ -73,7 +73,7 @@ class VisionTransformer(nn.Module):
     def __init__(self):
         super(VisionTransformer,self).__init__()
         self.vit = models.vit_b_16(weights=None)
-        self.vit.conv_proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
+        # self.vit.conv_proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
         self.vit.heads[0] = nn.Linear(in_features=768, out_features=10, bias=True)
 
     def forward(self, x):
