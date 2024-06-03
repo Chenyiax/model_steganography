@@ -1,3 +1,10 @@
+"""
+文件名: cover_model.py
+作者: 徐辰屹
+日期: 2024年5月21日
+
+说明: 编解码器与判决器
+"""
 import torch
 import torch.nn as nn
 

@@ -1,3 +1,10 @@
+"""
+文件名: cutout.py
+作者: 徐辰屹
+日期: 2024年5月20日
+
+说明: cutout数据增强
+"""
 import numpy as np
 from PIL import Image
 

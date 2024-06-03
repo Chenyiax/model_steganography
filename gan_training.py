@@ -18,7 +18,7 @@ from torch import nn
 
 import torch.nn.functional as F
 from get_data import get_cnn_data, get_rnn_data
-from task_model import *
+from cover_model import *
 from model import SecretBitsEncoder, SecretBitsDecoder, Discriminator
 from test import test_model
 from train import train_model
@@ -34,8 +34,8 @@ criterion = torch.nn.CrossEntropyLoss()
 
 # secret_bits_encoder = SecretBitsEncoder(SIZE).to(device)
 # secret_bits_decoder = SecretBitsDecoder(SIZE).to(device)
-secret_bits_encoder = torch.load(f"data/encoder.pth")
-secret_bits_decoder = torch.load(f"data/decoder.pth")
+secret_bits_encoder = torch.load(f"models/encoder.pth")
+secret_bits_decoder = torch.load(f"models/decoder.pth")
 
 
 # discriminator = torch.load(f'discriminator_{SIZE}.pth').to(device)
@@ -135,6 +135,6 @@ for epoch_i in range(0, epoch):
     print("loss of the encoder:", loss_encoder.item())
     print("decoder acc", accuracy)
 
-torch.save(discriminator, f"data/discriminator.pth")
-torch.save(secret_bits_encoder, f"data/encoder.pth")
-torch.save(secret_bits_decoder, f"data/decoder.pth")
+torch.save(discriminator, f"models/discriminator.pth")
+torch.save(secret_bits_encoder, f"models/encoder.pth")
+torch.save(secret_bits_decoder, f"models/decoder.pth")

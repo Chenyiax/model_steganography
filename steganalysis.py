@@ -47,5 +47,5 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(steganalysis_model.parameters(), lr=1e-4)
     train_model(steganalysis_model, train_dataloader, criterion, optimizer, num_epochs=50)
     test_model(steganalysis_model, test_dataloader, criterion)
-    torch.save(steganalysis_model, 'data/discriminator.pth')
+    torch.save(steganalysis_model, 'models/discriminator.pth')
 

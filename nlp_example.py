@@ -11,7 +11,7 @@ import torch
 
 from model_steganorgraphy import ModelSteganography
 from get_data import get_rnn_data, get_cnn_data
-from task_model import LSTM, TransformerClassifier
+from cover_model import LSTM, TransformerClassifier
 from test import test_model
 from train import train_model
 

@@ -1,3 +1,10 @@
+"""
+文件名: get_data.py
+作者: 徐辰屹
+日期: 2024年3月6日
+
+说明: 获取数据集的代码
+"""
 import os
 import re
 import torch
@@ -11,20 +18,19 @@ from datasets import load_dataset, load_from_disk
 from cutout import Cutout
 
 
-def  get_cnn_data():
+def get_cnn_data():
     # 定义数据转换
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),  # 随机裁剪，大小为32x32，填充4像素
         Cutout(6),
         transforms.RandomHorizontalFlip(),
-
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),  # 转为Tensor
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
 
-
     transform_test = transforms.Compose([
-
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
@@ -32,7 +38,7 @@ def  get_cnn_data():
     transform_mnist = transforms.Compose([
         transforms.Resize((64, 64)),
         transforms.ToTensor(),
-        transforms.Normalize(0.5,0.5)
+        transforms.Normalize(0.5, 0.5)
     ])
 
     # 下载MNIST训练集

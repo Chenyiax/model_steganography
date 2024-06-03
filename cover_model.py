@@ -1,3 +1,11 @@
+"""
+文件名: cover_model.py
+作者: 徐辰屹
+日期: 2024年5月21日
+
+说明: 载体模型文件
+    如果用MNIST数据集,记得把输入通道数改为1
+"""
 import copy
 import math
 
@@ -49,7 +57,7 @@ class ResNet18(nn.Module):
     def __init__(self):
         super(ResNet18, self).__init__()
         self.resnet = models.resnet18(weights=None)
-        self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.resnet.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
         self.resnet.fc = nn.Linear(in_features=512, out_features=10, bias=True)
 
     def forward(self, x):
@@ -73,11 +81,31 @@ class VisionTransformer(nn.Module):
     def __init__(self):
         super(VisionTransformer,self).__init__()
         self.vit = models.vit_b_16(weights=None)
-        # self.vit.conv_proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
+        self.vit.conv_proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
         self.vit.heads[0] = nn.Linear(in_features=768, out_features=10, bias=True)
 
     def forward(self, x):
         x = self.vit(x)
+        return x
+
+
+class CNN(nn.Module):
+    def __init__(self):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(128 * 4 * 4, 512)
+        self.fc2 = nn.Linear(512, 10)
+
+    def forward(self, x):
+        x = self.pool(torch.relu(self.conv1(x)))
+        x = self.pool(torch.relu(self.conv2(x)))
+        x = self.pool(torch.relu(self.conv3(x)))
+        x = x.view(-1, 128 * 4 * 4)
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
         return x
 
 

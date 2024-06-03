@@ -8,7 +8,6 @@
 提供了一些项目中需要使用的工具函数
 """
 import math
-import random
 
 import bchlib
 import numpy as np
@@ -16,12 +15,15 @@ import torch
 from matplotlib import pyplot as plt
 from torch import nn
 import torch.nn.functional as F
+from torch.nn import init
 from torch.nn.init import _calculate_correct_fan, calculate_gain
 
 
 # 统计模型所有参数
-def count_parameters(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+def count_parameters(model, bias=True):
+    if bias:
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    return sum(p.numel() for p in model.parameters() if p.requires_grad and p.dim() > 1)
 
 
 # 生成秘密信息的函数
@@ -48,13 +50,20 @@ def downsample_tensor(tensor, target_length=1024):
     return downsampled_tensor
 
 
-def get_model_params(model: torch.nn.Module, max_nums=5000000, min_nums=1000) -> list:
+def get_model_params(model: torch.nn.Module) -> list:
+    '''
+    获取神经网络参数的函数
+
+    Args:
+        model(nn.Module) : 目标神经网络模型
+
+    Returns:
+        list: 一个列表,长度为符合条件的层的参数， 其中每一个元素为一个tensor
+        例: 一个10层的神经网络, 返回值为一个长度为 10 的 list, 每一个元素都是一个tensor, 为这一层的参数
+    '''
     last_params_list = []
     for name, m in model.named_modules():
         if isinstance(m, (nn.Linear, nn.Conv2d)):
-            params = count_parameters(m)
-            if params > max_nums or params < min_nums:
-                continue
             # 获取更新后的模型参数
             if m.bias is None:
                 last_params_list.append(m.weight.detach().reshape(-1).to("cpu"))
@@ -64,17 +73,16 @@ def get_model_params(model: torch.nn.Module, max_nums=5000000, min_nums=1000) ->
 
 
 def to_hist_tensor(tensor: torch.Tensor, bins: int) -> (torch.Tensor, np.ndarray):
-    """
+    '''
     将张量转换为直方图的函数
+    Args:
+        tensor(torch.Tensor) :输入张量
+        bins(int) :直方图个数
 
-    参数：
-    tensor(torch.Tensor) :输入张量
-    bins(int) :直方图个数
-
-    返回值：
-    tensor: 张量的直方图
-    ndarray: 对应直方图所代表的横坐标, 用于绘图
-    """
+    Returns:
+        tensor: 张量的直方图
+        ndarray: 对应直方图所代表的横坐标, 用于绘图
+    '''
     hist, bin_edges = np.histogram(tensor.detach().to("cpu").numpy(), bins=bins, range=(-1, 1))
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     prob_dist = hist / hist.sum()
@@ -84,17 +92,17 @@ def to_hist_tensor(tensor: torch.Tensor, bins: int) -> (torch.Tensor, np.ndarray
 
 
 def calculate_kl(tensor1: torch.Tensor, tensor2: torch.Tensor) -> float:
-    """
+    '''
     计算两个张量的kl散度的函数
     使用直方图估计法
 
-    参数：
-    tensor1(torch.Tensor) :张量1
-    tensor2(torch.Tensor) :张量2
+    Args:
+        tensor1(torch.Tensor) :张量1
+        tensor2(torch.Tensor) :张量2
 
-    返回值：
-    float: 两个张量的 kl 散度
-    """
+    Returns:
+         float: 两个张量的 kl 散度
+    '''
     # 直方图箱子的个数为参数个数的根号
     bins = int(math.sqrt(len(tensor1)))
     hist_tensor1, bin_center1 = to_hist_tensor(tensor1, bins=bins)
@@ -117,17 +125,17 @@ def calculate_kl(tensor1: torch.Tensor, tensor2: torch.Tensor) -> float:
 
 
 def modify_distribution(tensor: torch.Tensor, var: float, mean=0) -> torch.Tensor:
-    """
+    '''
     修改张量均值和方差的函数
 
-    参数：
-    tensor(torch.Tensor) :目标张量
-    var(float) :目标方差
-    mean(int) :目标均值
+    Args:
+        tensor(torch.Tensor) :目标张量
+        var(float) :目标方差
+        mean(int) :目标均值
 
-    返回值：
-    torch.Tensor: 修改后的张量
-    """
+    Returns:
+         torch.Tensor: 修改后的张量
+    '''
     # 计算当前张量的均值和方差
     current_mean = torch.mean(tensor)
     current_var = torch.var(tensor)
@@ -140,6 +148,14 @@ def modify_distribution(tensor: torch.Tensor, var: float, mean=0) -> torch.Tenso
 
 
 def interpolate(tensor: torch.Tensor) -> torch.Tensor:
+    '''
+    将张量线性插值至 1024的倍数
+    Args:
+        tensor(torch.Tensor): 输入张量
+
+    Returns:
+        torch.Tensor: 输出张量
+    '''
     tensor = tensor.view(1, 1, -1)
     nums = tensor.size(2)
     batch = nums // 1024 + 1
@@ -160,8 +176,16 @@ def compute_accuracy(predictions, targets):
     return accuracy
 
 
-# 字节转比特流的函数
 def bytearray_to_int_list(byte_array):
+    '''
+    字节转比特流的函数
+
+    Args:
+        byte_array: 字节数组
+
+    Returns:
+        list: 只含有 0 和 1 的list
+    '''
     int_list = []
     for byte in byte_array:
         # 将每个字节拆分为8位，并将每位转换为整数
@@ -171,6 +195,16 @@ def bytearray_to_int_list(byte_array):
 
 
 def bch_encode(data: np.ndarray) -> np.ndarray:
+    '''
+    bch 编码函数
+    bchlib这个库真的很阴间, 注释写太少了
+
+    Args:
+        data(np.ndarray): 只含有 0 和 1 的np数组, 长度应当为 64
+
+    Returns:
+        np.ndarray: 经过bch编码后的np数组, 只含有0和1, 长度为 128
+    '''
     outputs = []
     bch = bchlib.BCH(10, m=7)
     for i in data:
@@ -184,6 +218,16 @@ def bch_encode(data: np.ndarray) -> np.ndarray:
 
 
 def bch_decode(data: np.ndarray) -> torch.Tensor:
+    '''
+    bch 解码函数
+    bchlib这个库真的很阴间, 注释写太少了
+
+    Args:
+        data(np.ndarray): 只含有 0 和 1 的np数组, 长度应当为 128
+
+    Returns:
+        np.ndarray: 经过bch纠错后的np数组, 只含有0和1, 长度为 64
+    '''
     outputs = []
     bch = bchlib.BCH(10, m=7)
     for i in data:
@@ -198,10 +242,28 @@ def bch_decode(data: np.ndarray) -> torch.Tensor:
     return torch.tensor(outputs)
 
 
-def kaiming_uniform_(
+def kaiming_init_(
     tensor: torch.Tensor, a: float = math.sqrt(3), mode: str = 'fan_in', nonlinearity: str = 'leaky_relu'
 ):
+    '''
+    凯明初始化方差计算函数
+    详情请见 torch.nn.init.kaiming_uniform_
+
+    Args:
+        tensor(torch.Tensor): 待初始化的张量
+        a(float): leaky_relu的斜率，如果nonlinearity是relu的话，这项参数没用
+        mode(str): fan_in是优化前向传播, fan_out是优化反向传播
+        nonlinearity(str): 激活函数用的是relu还是leaky_relu
+
+    Returns:
+        float: 这层权重所需要服从的方差
+        float: 对应的偏置所需要服从的方差(如果有的话)
+    '''
     fan = _calculate_correct_fan(tensor, mode)
     gain = calculate_gain(nonlinearity, a)
     std = gain / math.sqrt(fan)
-    return std
+
+    fan_in, _ = init._calculate_fan_in_and_fan_out(tensor)
+    bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+    bias_var = bound**2/3
+    return std**2, bias_var

@@ -4,6 +4,7 @@
 日期: 2024年4月29日
 
 说明: 一个模型嵌入秘密信息然后提取的cv示例,快速版
+    通过直接添加噪声替代模型训练
 """
 import random
 
@@ -12,7 +13,7 @@ import torch
 from torch import nn
 
 from model_steganorgraphy import ModelSteganography
-from task_model import *
+from cover_model import *
 from utils import get_model_params, count_parameters
 
 # 每 1024 个参数嵌入 128 位秘密信息
@@ -27,7 +28,9 @@ ms = ModelSteganography()
 # 生成并嵌入秘密信息
 secret_bits, secret_bits_bch = ms.encode(task_model)
 
+# 获取参数
 params = get_model_params(task_model)
+# 然后添加噪声
 i = 0
 for name, m in task_model.named_modules():
     if isinstance(m, (nn.Linear, nn.Conv2d)):

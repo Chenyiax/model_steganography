@@ -11,7 +11,7 @@ import torch
 
 from model_steganorgraphy import ModelSteganography
 from get_data import get_rnn_data, get_cnn_data
-from task_model import Vgg16, AlexNet, ResNet18
+from cover_model import Vgg16, AlexNet, ResNet18
 from test import test_model
 from train import train_model
 from utils import get_model_params

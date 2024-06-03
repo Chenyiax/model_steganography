@@ -15,7 +15,7 @@ import random
 import torch
 
 from get_data import get_cnn_data
-from task_model import *
+from cover_model import *
 from model import *
 from test import test_model
 from train import train_model
@@ -132,5 +132,5 @@ for i in range(0, epoch):
 
 # torch.save(loss_list, f"data/joint_train_loss.pth")
 # torch.save(kl_list, f"data/joint_train_kl.pth")
-torch.save(secret_bits_encoder, f"data/encoder.pth")
-torch.save(secret_bits_decoder, f"data/decoder.pth")
+torch.save(secret_bits_encoder, f"models/encoder.pth")
+torch.save(secret_bits_decoder, f"models/decoder.pth")
