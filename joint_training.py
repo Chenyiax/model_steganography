@@ -15,7 +15,7 @@ import random
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 
-from get_data import get_cnn_data
+from get_data import get_cifar10_data
 from stego_model import *
 from model import *
 from test import test_model
@@ -28,11 +28,12 @@ parser.add_argument('--max_nums', default=500000, type=int,
                     help='最大参数提取数(如果某个层的参数个数超过这个数的参数不生成也不提取)')
 parser.add_argument('--min_nums', default=1000, type=int,
                     help='最大参数提取数(如果某个层的参数个数不足这个数的参数不生成也不提取)')
-parser.add_argument('--var', default=1e-3, type=float, help='生成参数的方差(含秘模型所需要服从的方差)')
+parser.add_argument('--var', default=1, type=float, help='生成参数的方差(含秘模型所需要服从的方差)')
 parser.add_argument('--simulation_train', default=True, type=bool, help='开启后直接在任务模型中添加噪声，模拟模型训练')
-parser.add_argument('--simulation_std', default=0.06, type=float, help='模拟训练的方差(不宜过大)')
-parser.add_argument('--simulation_mean', default=0.0027, type=float, help='模拟训练的均值(不宜过大)')
+parser.add_argument('--simulation_std', default=1, type=float, help='模拟训练的方差(不宜过大)')
+parser.add_argument('--simulation_mean', default=0, type=float, help='模拟训练的均值(不宜过大)')
 parser.add_argument('--load_model', default=False, type=bool, help='是否加载模型')
+parser.add_argument('--size', default=96, type=bool, help='每多少个秘密信息生成1024个参数')
 args = parser.parse_args()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -42,8 +43,8 @@ if args.load_model:
     secret_bits_encoder = torch.load(f"data/encoder.pth")
     secret_bits_decoder = torch.load(f"data/decoder.pth")
 else:
-    secret_bits_encoder = SecretBitsEncoder().to(device)
-    secret_bits_decoder = SecretBitsDecoder().to(device)
+    secret_bits_encoder = SecretBitsEncoder(args.size).to(device)
+    secret_bits_decoder = SecretBitsDecoder(args.size).to(device)
 
 print(secret_bits_decoder)
 
@@ -53,7 +54,7 @@ criterion_decoder = torch.nn.MSELoss()
 optimizer_decoder = torch.optim.Adam(parameters, lr=5e-5)
 
 if not args.simulation_train:
-    train_loader, test_loader = get_cnn_data()
+    train_loader, test_loader = get_cifar10_data()
 
 task_model = ResNet18()
 params = get_model_params(task_model)
@@ -76,7 +77,7 @@ epoch = 5000
 for i in range(0, epoch):
 
     # 任务模型的参数个数
-    secret_bits = get_secretbits_for_train(len(params))
+    secret_bits = get_secretbits_for_train(len(params), size=args.size)
     secret_bits = secret_bits.to(device)
 
     # 生成含有秘密信息的参数
@@ -149,5 +150,5 @@ for i in range(0, epoch):
 
 # torch.save(loss_list, f"data/joint_train_loss.pth")
 # torch.save(kl_list, f"data/joint_train_kl.pth")
-torch.save(secret_bits_encoder, f"models/encoder.pth")
-torch.save(secret_bits_decoder, f"models/decoder.pth")
+torch.save(secret_bits_encoder, f"models/encoder{args.size}.pth")
+torch.save(secret_bits_decoder, f"models/decoder{args.size}.pth")

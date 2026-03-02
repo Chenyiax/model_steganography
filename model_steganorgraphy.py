@@ -1,5 +1,5 @@
 """
-文件名: generate_secrectbits_use_batch.py
+文件名: model_steganorgraphy.py
 作者: 徐辰屹
 日期: 2024年5月3日
 
@@ -19,17 +19,16 @@ from utils import get_secretbits, bch_decode, modify_distribution, interpolate
 
 
 class ModelSteganography:
-    def __init__(self, init_function, batch_size=64, target_var=1e-4, max_nums=500000, min_nums=1000):
+    def __init__(self, init_function, size=128, batch_size=64, target_var=1e-3, min_nums=1000):
         '''
         :param init_function: 需要使用的初始化方法
         :param batch_size: 编码器生成参数时的 batch_size
         :param target_var: 最小方差提取数量
-        :param max_nums: 最大参数提取数量
         :param min_nums: 最小参数提取数量
         '''
+        self.size = size
         self.batch_size = batch_size
         self.target_var = target_var
-        self.max_nums = max_nums
         self.min_nums = min_nums
         self.init_function = init_function
 
@@ -45,7 +44,7 @@ class ModelSteganography:
             torch.Tensor: 嵌入的秘密信息
             torch.Tensor: bch解码的秘密信息
         '''
-        secret_bits_encoder = torch.load(f"models/encoder.pth").train()
+        secret_bits_encoder = torch.load(f"models/encoder{self.size}.pth").train()
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         secret_bits_bch_arr = []  # 存储秘密信息用作验证
         secret_bits_arr = []
@@ -62,7 +61,7 @@ class ModelSteganography:
                         params_num = m.weight.numel()
 
                     # 如果参数过多则不生成参数
-                    if params_num > self.max_nums or params_num < self.min_nums:
+                    if params_num < self.min_nums:
                         continue
 
                     # 如果方差过小则不嵌入秘密信息
@@ -109,7 +108,7 @@ class ModelSteganography:
                         else:
                             params_num = value.numel()
 
-                        if params_num > self.max_nums or params_num < self.min_nums:
+                        if params_num < self.min_nums:
                             continue
                         # 统计参数方差
                         var = torch.var(getattr(m, key)).item()
@@ -158,11 +157,11 @@ class ModelSteganography:
             torch.Tensor: 嵌入的秘密信息
             torch.Tensor: bch解码的秘密信息
         '''
-        secret_bits_decoder = torch.load(f"models/decoder.pth").train()
+        secret_bits_decoder = torch.load(f"models/decoder{self.size}.pth").train()
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
-        outputs_arr = []  # 存储解码出的秘密信息
-        outputs_bch_arr = []
+        outputs_arr_bch = []  # 存储解码出的秘密信息
+        outputs_arr = []
         with torch.no_grad():  # 禁用梯度计算
             for name, m in model.named_modules():
                 if isinstance(m, (nn.Linear, nn.Conv1d, nn.Conv2d, nn.Embedding)):
@@ -174,7 +173,7 @@ class ModelSteganography:
                     else:
                         params_num = m.weight.numel()
                     # 如果参数过多则不生成参数
-                    if params_num > self.max_nums or params_num < self.min_nums:
+                    if params_num < self.min_nums:
                         continue
                     # 如果方差过小则不嵌入秘密信息
                     if weight_var < self.target_var:
@@ -199,9 +198,9 @@ class ModelSteganography:
                     # 大于0.5的认为是 1
                     predictions = (outputs > 0.5).float()
 
-                    outputs_bch_arr.append(predictions)
-                    predictions = bch_decode(predictions.detach().numpy())
                     outputs_arr.append(predictions)
+                    predictions = bch_decode(predictions.detach().numpy())
+                    outputs_arr_bch.append(predictions)
 
                 elif isinstance(m, (nn.LSTM, nn.RNN)):
                     weight_params = {name: param for name, param in m.named_parameters() if 'weight' in name}
@@ -212,7 +211,7 @@ class ModelSteganography:
                             params = value.numel() + getattr(m, bias_name).numel()
                         else:
                             params = value.numel()
-                        if params > self.max_nums or params < self.min_nums:
+                        if params < self.min_nums:
                             continue
 
                         if hasattr(m, bias_name):
@@ -239,10 +238,10 @@ class ModelSteganography:
 
                         predictions = (outputs > 0.5).float()
 
-                        outputs_bch_arr.append(predictions)
-                        predictions = bch_decode(predictions.detach().numpy())
                         outputs_arr.append(predictions)
+                        predictions = bch_decode(predictions.detach().numpy())
+                        outputs_arr_bch.append(predictions)
 
-        outputs_bch_tensor = torch.concatenate(outputs_bch_arr)
         outputs_tensor = torch.concatenate(outputs_arr)
-        return outputs_bch_tensor.view(-1), outputs_tensor.view(-1)
+        outputs_tensor_bch = torch.concatenate(outputs_arr_bch)
+        return outputs_tensor.view(-1), outputs_tensor_bch.view(-1)

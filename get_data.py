@@ -15,7 +15,7 @@ from datasets import load_dataset, load_from_disk
 from cutout import Cutout
 
 
-def get_cnn_data():
+def get_cifar10_data():
     '''
     获取 CV 数据集
 
@@ -29,13 +29,13 @@ def get_cnn_data():
         transforms.RandomCrop(32, padding=4),  # 随机裁剪，大小为32x32，填充4像素
         Cutout(6),
         transforms.RandomHorizontalFlip(),
-        transforms.Resize((224, 224)),
+        transforms.Resize((64, 64)),
         transforms.ToTensor(),  # 转为Tensor
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
 
     transform_test = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((64, 64)),
         transforms.ToTensor(),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
@@ -53,13 +53,55 @@ def get_cnn_data():
     test_dataset = datasets.CIFAR10(root='./dataset', train=False, transform=transform_test, download=True)
 
     # 创建数据加载器
-    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=32, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+
+    return train_loader, test_loader
+
+def get_mnist_data():
+    # 定义数据转换
+    transform_mnist = transforms.Compose([
+        transforms.Resize((64, 64)),
+        transforms.ToTensor(),
+        transforms.Lambda(lambda x: x.repeat(3, 1, 1)),  # 将单通道图像重复三次
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])  # 正常化三通道图像
+    ])
+
+    # 下载MNIST训练集
+    train_dataset = datasets.MNIST(root='./dataset', train=True, transform=transform_mnist, download=True)
+
+    # 下载MNIST测试集
+    test_dataset = datasets.MNIST(root='./dataset', train=False, transform=transform_mnist, download=True)
+
+    # 创建数据加载器
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+
+    return train_loader, test_loader
+
+def get_fashionmnist_data():
+    # 定义数据转换
+    transform_mnist = transforms.Compose([
+        transforms.Resize((64, 64)),
+        transforms.ToTensor(),
+        transforms.Lambda(lambda x: x.repeat(3, 1, 1)),  # 将单通道图像重复三次
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])  # 正常化三通道图像
+    ])
+
+    # 下载MNIST训练集
+    train_dataset = datasets.FashionMNIST(root='./dataset', train=True, transform=transform_mnist, download=True)
+
+    # 下载MNIST测试集
+    test_dataset = datasets.FashionMNIST(root='./dataset', train=False, transform=transform_mnist, download=True)
+
+    # 创建数据加载器
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
 
     return train_loader, test_loader
 
 
-def get_rnn_data():
+def get_sst2_data():
     '''
     获取 nlp 数据集
 
@@ -115,4 +157,4 @@ def get_rnn_data():
 
 
 if __name__ == '__main__':
-    get_rnn_data()
+    get_sst2_data()

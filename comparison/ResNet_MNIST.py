@@ -230,7 +230,11 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess.run(tf.global_variables_initializer())
 
-for i in range(6000):
+# saver = tf.train.Saver()
+# # 恢复模型
+# saver.restore(sess, './resnet_initial_weights.ckpt')
+
+for i in range(10000):
     batch = mnist.train.next_batch(50)
     if i % 100 == 0:
         train_accuracy = accuracy.eval(feed_dict={
@@ -246,4 +250,4 @@ print('test accuracy %g' % accuracy.eval(feed_dict={x: mnist.test.images, y: mni
 sess.close()
 
 wconv = np.array(wconv)
-np.save('weight_without_secret.npy', wconv)
+np.save('resnet_weight_without_secret.npy', wconv)

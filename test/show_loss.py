@@ -8,58 +8,33 @@
 '''
 import torch
 import matplotlib.pyplot as plt
-loss1 = torch.load("../data/train_loss_AlexNet_without_secret.pth")
-loss2 = torch.load("../data/train_loss_AlexNet_with_secret.pth")
 
-loss3 = torch.load("../data/train_loss_DenseNet_without_secret.pth")
-loss4 = torch.load("../data/train_loss_DenseNet_with_secret.pth")
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['Times New Roman']
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+cmap = plt.get_cmap('bwr') # bwr 色组
+color1 = cmap(0)  # 取出蓝色
+color2 = cmap(255)  # 取出中间色（白色和红色的中间）
+plt.rcParams.update({'font.size': 18})
 
-loss5 = torch.load("../data/train_loss_ResNet18_without_secret.pth")
-loss6 = torch.load("../data/train_loss_ResNet18_with_secret.pth")
+model_list = ["AlexNet", "DenseNet", "ResNet18", "Vgg16"]
+dataset_list = ["cifar10", "mnist", "fashionmnist"]
 
-loss7 = torch.load("../data/train_loss_Vgg16_without_secret.pth")
-loss8 = torch.load("../data/train_loss_Vgg16_with_secret.pth")
+for dataset in dataset_list:
+    for model in model_list:
+        # 加载损失数据
+        loss1 = torch.load(f"../data/train_loss_{model}_without_secret_{dataset}.pth")
+        loss2 = torch.load(f"../data/train_loss_{model}_with_secret_{dataset}.pth")
 
-rows = 2
-cols = 2
-# 创建一个图表和子图
-fig, axs = plt.subplots(rows, cols)
+        # 绘制第一个图：AlexNet的损失
+        plt.figure()
+        plt.grid(True, linestyle='--', linewidth=1.5, color='gray', alpha=0.1)
+        plt.plot(loss1, color=color1, label='Clean')
+        plt.plot(loss2, color=color2, label='Stego')
+        plt.legend()
 
-# 绘制第一个子图：DenseNet的损失
-axs[0, 0].plot(loss1, label='Origin')
-axs[0, 0].plot(loss2, label='Stego')
-axs[0, 0].legend()
-axs[0, 0].set_title('AlexNet Loss Over Epochs')
-axs[0, 0].set_xlabel('Epoch')
-axs[0, 0].set_ylabel('Loss')
-
-# 绘制第二个子图：Vgg16的损失
-axs[0, 1].plot(loss3, label='Origin')
-axs[0, 1].plot(loss4, label='Stego')
-axs[0, 1].legend()
-axs[0, 1].set_title('DenseNet Loss Over Epochs')
-axs[0, 1].set_xlabel('Epoch')
-axs[0, 1].set_ylabel('Loss')
-
-# 绘制第三个子图：ResNet18的损失
-axs[1, 0].plot(loss5, label='Origin')
-axs[1, 0].plot(loss6, label='Stego')
-axs[1, 0].legend()
-axs[1, 0].set_title('ResNet18 Loss Over Epochs')
-axs[1, 0].set_xlabel('Epoch')
-axs[1, 0].set_ylabel('Loss')
-
-
-# 绘制第四个子图：ResNet18的损失
-axs[1, 1].plot(loss7, label='Origin')
-axs[1, 1].plot(loss8, label='Stego')
-axs[1, 1].legend()
-axs[1, 1].set_title('Vgg16 Loss Over Epochs')
-axs[1, 1].set_xlabel('Epoch')
-axs[1, 1].set_ylabel('Loss')
-
-# 调整子图间距
-plt.tight_layout()
-
-# 显示图表
-plt.show()
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.tight_layout()
+        plt.savefig(f'../data/{model}_loss_{dataset}.pdf', dpi=None, format='pdf')
+        plt.show()

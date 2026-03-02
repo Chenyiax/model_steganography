@@ -11,7 +11,7 @@ import torch
 
 from init_function import *
 from model_steganorgraphy import ModelSteganography
-from get_data import get_rnn_data
+from get_data import get_sst2_data
 from stego_model import LSTM, TransformerClassifier
 from test import test_model
 from train import train_model
@@ -21,7 +21,7 @@ init_func = init_nlp
 # 面向对象编程, 生成一个模型隐写类
 ms = ModelSteganography(init_func, target_var=1e-4, max_nums=500000)
 
-train_loader, test_loader, vocab_size, vocab_len = get_rnn_data()
+train_loader, test_loader, vocab_size, vocab_len = get_sst2_data()
 
 task_model = LSTM(vocab_size)
 label_model = copy.deepcopy(task_model)

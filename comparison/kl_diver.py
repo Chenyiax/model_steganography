@@ -14,8 +14,8 @@ import torch.nn.functional as F
 from utils import to_hist_tensor
 import matplotlib.pyplot as plt
 
-params_with_secret = torch.tensor(np.load("weight_with_secret23.npy")).view(-1)
-params_without_secret = torch.tensor(np.load("weight_without_secret.npy")).view(-1)
+params_with_secret = torch.tensor(np.load("alexnet_weight_without_secret22.npy")).view(-1)
+params_without_secret = torch.tensor(np.load("alexnet_weight_without_secret.npy")).view(-1)
 
 # 计算直方图统计的箱子个数
 bins = int(math.sqrt(len(params_with_secret)))

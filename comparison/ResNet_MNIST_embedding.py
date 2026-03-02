@@ -15,9 +15,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # 指定第五块GPU跑
 
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
-capacity = 2000  # 隐写容量
+capacity = 5000  # 隐写容量
 beta = 200       # 超参数β
-alpha = 0        # 超参数α
+alpha = 2        # 超参数α
 
 
 def weight_variable(shape):
@@ -324,7 +324,12 @@ if __name__ == "__main__":
 
     extraction_error = 0.5
 
-    for i in range(6000):
+    saver = tf.train.Saver()
+
+    # 恢复模型
+    saver.restore(sess, './resnet_initial_weights.ckpt')
+
+    for i in range(10000):
         batch = mnist.train.next_batch(batch_size)
         if i % 100 == 0:
             train_accuracy = accuracy.eval(feed_dict=
@@ -361,7 +366,7 @@ if __name__ == "__main__":
 
 
     print("\ntest accuracy: {:.4f} extraction error: {:.4f}".format(accuracy_test, extraction_error), end="")
-    # np.save('weight_with_secret23.npy', wconv)
+    np.save('resnet_weight_with_secret23.npy', wconv)
     sess.close()
     # time_end = time.time()
 

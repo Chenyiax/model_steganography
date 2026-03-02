@@ -10,6 +10,7 @@
 import math
 
 from torch import nn
+from torch.nn import init
 
 from utils import kaiming_init_
 
@@ -28,7 +29,12 @@ def init_alexnet(m: nn.Module):
     if isinstance(m, nn.Linear):
         weight_var, bias_var = kaiming_init_(m.weight, a=math.sqrt(5))
     elif isinstance(m, nn.Conv2d):
-        weight_var, bias_var = kaiming_init_(m.weight)
+        weight_var, bias_var = kaiming_init_(m.weight, a=math.sqrt(5))
+        if m.bias is not None:
+            fan_in, _ = init._calculate_fan_in_and_fan_out(m.weight)
+            if fan_in != 0:
+                bound = 1 / math.sqrt(fan_in)
+                bias_var = bound**2 / 3
     else:
         weight_var = 1
         bias_var = 0
@@ -76,6 +82,7 @@ def init_resnet(m: nn.Module):
         weight_var = 1
         bias_var = 0
     return weight_var, bias_var
+
 
 
 def init_vgg(m: nn.Module):

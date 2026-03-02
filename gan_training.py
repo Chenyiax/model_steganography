@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 from torch import nn
 
 import torch.nn.functional as F
-from get_data import get_cnn_data, get_rnn_data
+from get_data import get_cifar10_data, get_sst2_data
 from stego_model import *
 from model import SecretBitsEncoder, SecretBitsDecoder, Discriminator
 from test import test_model
@@ -34,8 +34,8 @@ criterion = torch.nn.CrossEntropyLoss()
 
 # secret_bits_encoder = SecretBitsEncoder(SIZE).to(device)
 # secret_bits_decoder = SecretBitsDecoder(SIZE).to(device)
-secret_bits_encoder = torch.load(f"models/encoder.pth")
-secret_bits_decoder = torch.load(f"models/decoder.pth")
+secret_bits_encoder = torch.load(f"models/encoder128.pth")
+secret_bits_decoder = torch.load(f"models/decoder128.pth")
 
 
 # discriminator = torch.load(f'discriminator_{SIZE}.pth').to(device)
@@ -136,5 +136,5 @@ for epoch_i in range(0, epoch):
     print("decoder acc", accuracy)
 
 torch.save(discriminator, f"models/discriminator.pth")
-torch.save(secret_bits_encoder, f"models/encoder.pth")
-torch.save(secret_bits_decoder, f"models/decoder.pth")
+torch.save(secret_bits_encoder, f"models/encoder128.pth")
+torch.save(secret_bits_decoder, f"models/decoder128.pth")

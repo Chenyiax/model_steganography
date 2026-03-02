@@ -9,6 +9,11 @@
 import torch
 import matplotlib.pyplot as plt
 
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['Times New Roman']
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+plt.rcParams.update({'font.size': 18})
+
 loss1 = torch.load("../data/extract_loss_resnet_1e-4.pth")
 acc1 = torch.load("../data/extract_acc_resnet_1e-4.pth")
 
@@ -20,32 +25,31 @@ acc3 = torch.load("../data/extract_acc_resnet_5e-5.pth")
 
 loss4 = torch.load("../data/extract_loss_resnet_1e-5.pth")
 acc4 = torch.load("../data/extract_acc_resnet_1e-5.pth")
-# 创建一个图形对象和第一个子图
-fig, ax1 = plt.subplots()
 
 # 绘制第一组数据
-ax1.plot(loss1, linestyle='--', label='loss lr=1e-4')
-ax1.plot(loss2, linestyle='--', label='loss lr=7e-5')
-ax1.plot(loss3, linestyle='--', label='loss lr=5e-5')
-ax1.plot(loss4, linestyle='--', label='loss lr=1e-5')
-ax1.set_xlabel('eopch')
-ax1.set_ylabel('loss')
-ax1.tick_params(axis='y')
-
-# 创建第二个子图，共享x轴
-ax2 = ax1.twinx()
-
-# 绘制第二组数据
-ax2.plot(acc1, label='acc lr=1e-4')
-ax2.plot(acc2, label='acc lr=7e-5')
-ax2.plot(acc3, label='acc lr=5e-5')
-ax2.plot(acc4, label='acc lr=1e-5')
-ax2.set_ylabel('acc')
-ax2.tick_params(axis='y')
-
-# 添加图例
-fig.tight_layout()  # 自动调整子图参数，避免重叠
-ax1.legend(loc='lower left')
-ax2.legend(loc='upper right')
+plt.plot(loss1, linestyle='--', color=(1, 0, 0), label='1e-4')
+plt.plot(loss2, linestyle='--', color=(0, 1, 0), label='7e-5')
+plt.plot(loss3, linestyle='--', color=(0, 0, 1), label='5e-5')
+plt.plot(loss4, linestyle='--', color=(1, 0, 1), label='1e-5')
+plt.grid(True, linestyle='--', linewidth=1.5, color='gray', alpha=0.1)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.tick_params(axis='y')
+plt.tight_layout()  # 自动调整子图参数，避免重叠
+plt.legend()
+plt.savefig('../data/loss_lr.pdf', format='pdf')
 plt.show()
 
+# 绘制第二组数据
+plt.plot(acc1, color=(1, 0, 0), label='1e-4')
+plt.plot(acc2, color=(0, 1, 0), label='7e-5')
+plt.plot(acc3, color=(0, 0, 1), label='5e-5')
+plt.plot(acc4, color=(1, 0, 1), label='1e-5')
+plt.grid(True, linestyle='--', linewidth=1.5, color='gray', alpha=0.1)
+plt.xlabel('Epoch')
+plt.ylabel('Extraction accuracy')
+plt.tick_params(axis='y')
+plt.tight_layout()  # 自动调整子图参数，避免重叠
+plt.legend()
+plt.savefig('../data/acc_lr.pdf', format='pdf')
+plt.show()

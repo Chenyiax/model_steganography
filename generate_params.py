@@ -11,20 +11,20 @@ import torch
 
 from init_function import *
 from model_steganorgraphy import ModelSteganography
-from get_data import get_rnn_data, get_cnn_data
+from get_data import get_sst2_data, get_cifar10_data
 from stego_model import Vgg16, AlexNet, ResNet18
 from test import test_model
 from train import train_model
 from utils import get_model_params
 
-WITH_SECRET = True
+WITH_SECRET = False
 
 max_nums = 5000000
 min_nums = 1000
 var = 1e-4
 
-train_loader, test_loader = get_cnn_data()
-task_model = ResNet18()
+train_loader, test_loader = get_cifar10_data()
+task_model = ResNet18().to("cuda")
 params = get_model_params(task_model)
 init_func = init_resnet
 ms = ModelSteganography(init_func, target_var=1e-4, max_nums=max_nums, min_nums=min_nums)
@@ -43,8 +43,8 @@ if WITH_SECRET:
 # 载体模型训练
 print("training task model:")
 criterion = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(task_model.parameters(), lr=1e-4)
-train_model(task_model, train_loader, criterion, optimizer)
+optimizer = torch.optim.Adam(task_model.parameters(), lr=5e-5)
+train_model(task_model, train_loader, criterion, optimizer, num_epochs=200)
 test_model(task_model, test_loader, criterion)
 task_model.to("cpu")
 

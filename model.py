@@ -36,9 +36,10 @@ class BasicBlock(nn.Module):
 
 
 class SecretBitsEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, size=128):
         super(SecretBitsEncoder, self).__init__()
-        self.fc1 = nn.Linear(128, 512, bias=False)
+        self.size = size
+        self.fc1 = nn.Linear(size, 512, bias=False)
         self.cov1 = BasicBlock(1,16)
         self.cov2 = BasicBlock(16, 32)
         self.cov3 = BasicBlock(32, 16)
@@ -48,7 +49,7 @@ class SecretBitsEncoder(nn.Module):
 
     # 输入 x 为一维128位的tensor, nums为待嵌入参数的个数，如 401536
     def forward(self, x):
-        x = x.view(-1, 1, 128)
+        x = x.view(-1, 1, self.size)
         x = self.fc1(x)
         x = F.tanh(x)
         x = self.cov1(x)
@@ -64,14 +65,15 @@ class SecretBitsEncoder(nn.Module):
 
 
 class SecretBitsDecoder(nn.Module):
-    def __init__(self):
+    def __init__(self, size=128):
         super(SecretBitsDecoder, self).__init__()
+        self.size = size
         self.conv1 = BasicBlock(1, 16)
         self.conv2 = BasicBlock(16, 32)
         self.conv3 = BasicBlock(32, 16)
         self.conv4 = BasicBlock(16, 32)
         self.fc1 = nn.Linear(1024*16, 512)
-        self.fc2 = nn.Linear(512, 128)
+        self.fc2 = nn.Linear(512, size)
         self.pool = nn.MaxPool1d(2, 2)
         self.batch_norm = nn.BatchNorm1d(1)
 
@@ -89,7 +91,7 @@ class SecretBitsDecoder(nn.Module):
         x = self.fc2(x)
         out = x.reshape(-1)
         out = torch.sigmoid(out)
-        return out.view(-1, 128)
+        return out.view(-1, self.size)
 
 
 class Discriminator(nn.Module):

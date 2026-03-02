@@ -34,9 +34,9 @@ def get_secretbits(nums: int) -> (torch.Tensor, torch.Tensor):
     return torch.tensor(binary, dtype=torch.float32), torch.tensor(random_binary, dtype=torch.float32).view(-1)
 
 
-def get_secretbits_for_train(nums: int) -> torch.Tensor:
+def get_secretbits_for_train(nums: int, size=128) -> torch.Tensor:
     batch = nums // 1024 + 1
-    random_binary = np.random.randint(0, 2, size=(batch, 128))
+    random_binary = np.random.randint(0, 2, size=(batch, size))
     return torch.tensor(random_binary, dtype=torch.float32)
 
 
@@ -68,11 +68,11 @@ def get_model_params(model: torch.nn.Module) -> list:
             if m.bias is None:
                 last_params_list.append(m.weight.detach().reshape(-1).to("cpu"))
             else:
-                last_params_list.append(torch.concatenate([m.bias.detach(), m.weight.detach().reshape(-1)]).to("cpu"))
+                last_params_list.append(torch.concatenate([m.bias.detach().to("cpu"), m.weight.detach().to("cpu").reshape(-1)]))
     return last_params_list
 
 
-def to_hist_tensor(tensor: torch.Tensor, bins: int) -> (torch.Tensor, np.ndarray):
+def to_hist_tensor(tensor: torch.Tensor, bins: int, range=(-0.5, 0.5)) -> (torch.Tensor, np.ndarray):
     '''
     将张量转换为直方图的函数
     Args:
@@ -83,7 +83,7 @@ def to_hist_tensor(tensor: torch.Tensor, bins: int) -> (torch.Tensor, np.ndarray
         tensor: 张量的直方图
         ndarray: 对应直方图所代表的横坐标, 用于绘图
     '''
-    hist, bin_edges = np.histogram(tensor.detach().to("cpu").numpy(), bins=bins, range=(-1, 1))
+    hist, bin_edges = np.histogram(tensor.detach().to("cpu").numpy(), bins=bins, range=range)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     prob_dist = hist / hist.sum()
     prob_dist[prob_dist == 0] = 1e-6
@@ -243,7 +243,7 @@ def bch_decode(data: np.ndarray) -> torch.Tensor:
 
 
 def kaiming_init_(
-    tensor: torch.Tensor, a: float = math.sqrt(3), mode: str = 'fan_in', nonlinearity: str = 'leaky_relu'
+    tensor: torch.Tensor, a: float = 0, mode: str = 'fan_in', nonlinearity: str = 'leaky_relu'
 ):
     '''
     凯明初始化方差计算函数
@@ -267,3 +267,6 @@ def kaiming_init_(
     bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
     bias_var = bound**2/3
     return std**2, bias_var
+
+if __name__ == '__main__':
+    print(kaiming_init_(torch.zeros(500,1000)))
