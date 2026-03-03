@@ -8,21 +8,15 @@
 运行将会生成对应模型文件
 在训练过程中一般不开启任务模型的训练
 """
-import math
 import random
 
-import numpy as np
-import torch
 from matplotlib import pyplot as plt
-from torch import nn
 
 import torch.nn.functional as F
-from get_data import get_cifar10_data, get_sst2_data
 from stego_model import *
-from model import SecretBitsEncoder, SecretBitsDecoder, Discriminator
-from test import test_model
-from train import train_model
-from utils import count_parameters, downsample_tensor, get_model_params, get_secretbits, to_hist_tensor, \
+from model import Discriminator
+from plt import test_model
+from utils import get_model_params, to_hist_tensor, \
     compute_accuracy, get_secretbits_for_train, modify_distribution
 
 SIZE = 128

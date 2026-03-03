@@ -1,0 +1,6 @@
+models/
+dataset/
+data/
+
+*.pth
+comparison/

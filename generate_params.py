@@ -11,10 +11,10 @@ import torch
 
 from init_function import *
 from model_steganorgraphy import ModelSteganography
-from get_data import get_sst2_data, get_cifar10_data
-from stego_model import Vgg16, AlexNet, ResNet18
-from test import test_model
-from train import train_model
+from get_data import get_cifar10_data
+from stego_model import ResNet18
+from plt import test_model
+from utils.train import train_model
 from utils import get_model_params
 
 WITH_SECRET = False

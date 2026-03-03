@@ -12,7 +12,7 @@ from torchvision import datasets, transforms
 from transformers import BertTokenizer
 from datasets import load_dataset, load_from_disk
 
-from cutout import Cutout
+from .cutout import Cutout
 
 
 def get_cifar10_data():
@@ -112,11 +112,11 @@ def get_sst2_data():
         vocab_len: 文本长度
 
     '''
-    cache_dir = 'dataset'
+    cache_dir = '../dataset'
     dataset_name = 'sst2'
     cached_dataset_path = cache_dir + '/' + dataset_name
     try:
-        dataset = load_from_disk('dataset/sst2/')
+        dataset = load_from_disk('../dataset/sst2/')
     except:
         dataset = load_dataset(path=dataset_name, cache_dir=cached_dataset_path)
 

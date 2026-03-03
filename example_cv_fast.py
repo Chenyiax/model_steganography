@@ -11,7 +11,7 @@ import random
 from init_function import *
 from model_steganorgraphy import ModelSteganography
 from stego_model import *
-from utils import get_model_params, count_parameters
+from utils.util import get_model_params, count_parameters
 
 MAX_NUMS = 5000000
 MIN_NUMS = 1000

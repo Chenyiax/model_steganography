@@ -11,7 +11,7 @@ import math
 import torch
 import numpy as np
 import torch.nn.functional as F
-from utils import to_hist_tensor
+from utils.util import to_hist_tensor
 import matplotlib.pyplot as plt
 
 params_with_secret = torch.tensor(np.load("alexnet_weight_without_secret22.npy")).view(-1)

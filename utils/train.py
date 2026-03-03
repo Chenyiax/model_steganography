@@ -8,13 +8,8 @@
 import torch
 from tqdm import tqdm
 
-from get_data import *
-from init_function import init_vit
-from model_steganorgraphy import ModelSteganography
+from utils.get_data import *
 from stego_model import *
-from test import test_model
-from utils import get_model_params
-
 
 def train_model(model, train_loader, criterion, optimizer, num_epochs=10, with_secret=True):
     '''
@@ -57,7 +52,6 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs=10, with_s
             _, predicted = torch.max(outputs, 1)
             total_correct += (predicted == labels).sum().item()
             total_samples += labels.size(0)
-        # torch.save(model, f"models/{model.__class__.__name__}_without_secret_epoch_{epoch}_1e-5.pth")
         # 提取秘密信息
         accuracy = total_correct / total_samples
         acc_list.append(accuracy)
@@ -65,11 +59,6 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs=10, with_s
         epoch_loss = running_loss / len(train_loader)
         loss_list.append(epoch_loss)
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss}, Acc:{accuracy}")
-
-    # if with_secret:
-    #     torch.save(loss_list,f"data/train_loss_{model.__class__.__name__}_with_secret_fashionmnist.pth")
-    # else:
-    #     torch.save(loss_list, f"data/train_loss_{model.__class__.__name__}_without_secret_fashionmnist.pth")
 
     print("Training finished")
 
@@ -118,7 +107,6 @@ def train_model_with_extract(model, train_loader, criterion, optimizer, ms, secr
             _, predicted = torch.max(outputs, 1)
             total_correct += (predicted == labels).sum().item()
             total_samples += labels.size(0)
-        # torch.save(model, f"models/{model.__class__.__name__}_without_secret_epoch_{epoch}_1e-5.pth")
         # 提取秘密信息
         if secret_bits_bch is not None:
             outputs_secrets, outputs_secrets_bch = ms.decode(model)
@@ -149,25 +137,4 @@ def train_model_with_extract(model, train_loader, criterion, optimizer, ms, secr
     else:
         torch.save(loss_list, f"data/train_loss_{model.__class__.__name__}_without_secret_cifar10.pth")
 
-    # data = {
-    #     "loss_list": loss_list,
-    #     "acc_list": acc_list,
-    #     "extract_acc_list": extract_acc_list,
-    #     "extract_acc_bch_list": extract_acc_bch_list
-    # }
-    # torch.save(data, f"data/{model.__class__.__name__}_cifar10_lr{optimizer.param_groups[0]['lr']}.pth")
     print("Training finished")
-
-
-if __name__ == '__main__':
-    train_loader, test_loader = get_mnist_data()
-    task_model = Vgg16()
-
-    # train_loader, test_loader, vocab_size, vocab_len = get_rnn_data()
-    # task_model = TextRNN(vocab_size)
-    # torch.save(task_model, f"models/{task_model.__class__.__name__}_without_secret_init.pth")
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(task_model.parameters(), lr=1e-4)
-    train_model(task_model, train_loader, criterion, optimizer, num_epochs=10, with_secret=False)
-    test_model(task_model, test_loader, criterion)
-    torch.save(task_model, f"models/{task_model.__class__.__name__}_without_secret2.pth")

@@ -1,10 +1,7 @@
-import math
-
 import torch
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
 
-from utils import to_hist_tensor, get_model_params
+from utils.util import to_hist_tensor, get_model_params
 
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = ['Times New Roman']

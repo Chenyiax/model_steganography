@@ -15,7 +15,7 @@ import torch.nn.functional as F
 
 from torch.utils.data import TensorDataset, DataLoader
 
-from utils import get_secretbits, bch_decode, modify_distribution, interpolate
+from utils.util import get_secretbits, bch_decode, modify_distribution, interpolate
 
 
 class ModelSteganography:

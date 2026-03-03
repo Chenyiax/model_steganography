@@ -5,15 +5,12 @@
 
 说明: 一个模型嵌入秘密信息然后提取的cv示例
 """
-import torch
 
-from init_function import *
+from utils.init_function import *
+from utils.get_data import *
+from utils.train import *
+from utils.test import test_model
 from model_steganorgraphy import ModelSteganography
-from get_data import *
-from stego_model import *
-from test import test_model
-from train import *
-from utils import get_model_params
 
 # 加载数据集
 train_loader, test_loader = get_fashionmnist_data()
@@ -22,16 +19,13 @@ stego_model = VisionTransformer()
 # 需要使用对应的初始化方法
 # 注意：这里的init_func是一个方法, 不是变量, 不需要括号
 init_func = init_vit
-params1 = get_model_params(stego_model)
 print(stego_model)
 # 面向对象编程, 生成一个模型隐写类
 ms = ModelSteganography(init_func, target_var=2e-4)
 # 对载体模型进行含秘初始化
 secret_bits, secret_bits_bch = ms.encode(stego_model)
 print(secret_bits.numel(), secret_bits_bch.numel())
-params2 = get_model_params(stego_model)
-for i, j in zip(params1, params2):
-    print(torch.var(i), torch.var(j))
+
 # torch.save({'secret_bits': secret_bits, 'secret_bits_bch': secret_bits_bch}, f"data/secret_{stego_model.__class__.__name__}")
 # 隐写模型损失函数
 criterion = torch.nn.CrossEntropyLoss()

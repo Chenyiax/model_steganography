@@ -5,14 +5,10 @@
 
 说明: 一个模型嵌入秘密信息然后提取的cv示例
 """
-import torch
 
 from init_function import *
-from model_steganorgraphy import ModelSteganography
 from get_data import *
-from stego_model import *
-from test import test_model
-from train import *
+from utils.train import *
 
 # 加载数据集
 train_loader, test_loader = get_cifar10_data()

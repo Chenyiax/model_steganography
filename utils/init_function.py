@@ -12,7 +12,7 @@ import math
 from torch import nn
 from torch.nn import init
 
-from utils import kaiming_init_
+from .util import kaiming_init_
 
 
 def init_alexnet(m: nn.Module):

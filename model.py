@@ -10,9 +10,6 @@ import torch.nn as nn
 
 import torch.nn.functional as F
 
-from utils import modify_distribution, interpolate
-
-
 # 定义基本的ResNet块
 class BasicBlock(nn.Module):
     def __init__(self, in_planes, planes):

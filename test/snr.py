@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 from stego_model import *
 from model import *
-from utils import get_secretbits, bch_decode
+from utils.util import get_secretbits, bch_decode
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

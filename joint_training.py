@@ -12,14 +12,12 @@
 """
 import argparse
 import random
-import torch
-from torch.utils.data import TensorDataset, DataLoader
 
 from get_data import get_cifar10_data
 from stego_model import *
 from model import *
-from test import test_model
-from train import train_model
+from plt import test_model
+from utils.train import train_model
 from utils import count_parameters, get_model_params, to_hist_tensor, modify_distribution, \
      get_secretbits_for_train, interpolate
 

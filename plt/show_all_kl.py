@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from torch import nn
 
 from init_function import *
-from utils import to_hist_tensor, get_model_params
+from utils.util import to_hist_tensor
 import matplotlib.pyplot as plt
 
 models = ["AlexNet", "Vgg16", "Resnet18", "DenseNet"]

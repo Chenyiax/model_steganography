@@ -12,9 +12,9 @@ import torch
 from init_function import *
 from model_steganorgraphy import ModelSteganography
 from get_data import get_sst2_data
-from stego_model import LSTM, TransformerClassifier
-from test import test_model
-from train import train_model
+from stego_model import LSTM
+from plt import test_model
+from utils.train import train_model
 
 
 init_func = init_nlp
