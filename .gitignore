@@ -1,6 +1,2 @@
-models/
-dataset/
-data/
-
 *.pth
-comparison/
+.idea

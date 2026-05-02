@@ -4,10 +4,10 @@ from matplotlib import pyplot as plt
 from torch import nn
 from torch.nn.utils import prune
 
-from init_function import init_resnet
-from model_steganorgraphy import ModelSteganography
-from get_data import get_cifar10_data
-from plt import test_model
+from utils.init_function import init_resnet
+from model_steganography import ModelSteganography
+from utils.get_data import get_cifar10_data
+from utils.test import test_model
 
 init_func = init_resnet
 ms = ModelSteganography(init_func, target_var=1e-4, max_nums=500000)

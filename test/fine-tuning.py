@@ -5,9 +5,9 @@ from torch import nn
 from torch.nn.utils import prune
 from tqdm import tqdm
 
-from get_data import get_mnist_data
-from init_function import init_resnet
-from model_steganorgraphy import ModelSteganography
+from utils.get_data import get_mnist_data
+from utils.init_function import init_resnet
+from model_steganography import ModelSteganography
 
 init_func = init_resnet
 ms = ModelSteganography(init_func, target_var=1e-4, max_nums=500000)
@@ -58,6 +58,6 @@ data = {
 }
 
 # 保存字典到文件
-torch.save(data, 'data/fine-tuning_5e-5.pth')
+torch.save(data, '../data/fine-tuning_5e-5.pth')
 
 

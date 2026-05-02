@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 from stego_model import *
 from model import *
+from plt.mpl_config import set_style
 from utils.util import get_secretbits, bch_decode
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,14 +19,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 secret_bits_encoder = torch.load(f"../models/encoder128.pth")
 secret_bits_decoder = torch.load(f"../models/decoder128.pth")
 
-plt.rcParams['font.family'] = 'serif'
-plt.rcParams['font.serif'] = ['Times New Roman']
-plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
-plt.rcParams.update({'font.size': 18})
 
-cmap = plt.get_cmap('bwr') # bwr 色组
-color1 = cmap(0)  # 取出蓝色
-color2 = cmap(255)  # 取出红色
+color = set_style()
 
 params_num = 1000000   # 生成参数个数
 noise_var_arr = np.linspace(1e-3, 0.5, 20)  # 噪声方差
@@ -65,8 +60,8 @@ for noise_var in noise_var_arr:
     print(f"snr:{snr}, err:{err}, err_bch:{err_bch} ")
 data_dict = {"snr": snr_list, "acc":err_list, "acc_bch":err_bch_list}
 
-plt.plot(snr_list, err_list, color=color1, label="w/o BCH")
-plt.plot(snr_list, err_bch_list, color=color2, label="w/ BCH")
+plt.plot(snr_list, err_list, color=color[0], label="w/o BCH")
+plt.plot(snr_list, err_bch_list, color=color[1], label="w/ BCH")
 plt.xlabel("SNR (dB)")
 plt.ylabel("Extraction accuracy")
 plt.legend()

@@ -17,9 +17,6 @@ class AlexNet(nn.Module):
     def __init__(self):
         super(AlexNet, self).__init__()
         self.alexnet = models.alexnet(weights=None)
-        # self.alexnet.features[0] =  nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2)
-        # self.alexnet.classifier[-1] = nn.Linear(4096, 10)
-
     def forward(self, x):
         x = self.alexnet(x)
         return x
@@ -29,9 +26,6 @@ class DenseNet(nn.Module):
     def __init__(self):
         super(DenseNet, self).__init__()
         self.densenet = models.densenet121(weights=None)
-        # self.densenet.features[0] = nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        # self.densenet.classifier = nn.Linear(in_features=1024, out_features=10, bias=True)
-
 
     def forward(self, x):
         x = self.densenet(x)
@@ -54,8 +48,6 @@ class ResNet18(nn.Module):
     def __init__(self):
         super(ResNet18, self).__init__()
         self.resnet = models.resnet18(weights=None)
-        # self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        # self.resnet.fc = nn.Linear(in_features=512, out_features=10, bias=True)
 
     def forward(self, x):
         x = self.resnet(x)
@@ -66,7 +58,6 @@ class Vgg16(nn.Module):
     def __init__(self):
         super(Vgg16, self).__init__()
         self.vgg16 = models.vgg16()
-        # self.vgg16.features[0] = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
         self.vgg16.classifier[-1] = nn.Linear(4096, 10)
 
     def forward(self, x):
@@ -78,8 +69,6 @@ class VisionTransformer(nn.Module):
     def __init__(self):
         super(VisionTransformer,self).__init__()
         self.vit = models.vit_b_16(weights=None, image_size=64)
-        # self.vit.conv_proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
-        # self.vit.heads[0] = nn.Linear(in_features=768, out_features=10, bias=True)
 
     def forward(self, x):
         x = self.vit(x)

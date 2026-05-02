@@ -5,6 +5,8 @@
 
 说明: 获取数据集的代码
 """
+import os
+
 import torch
 
 from torch.utils.data import Dataset, DataLoader, TensorDataset, random_split
@@ -14,6 +16,7 @@ from datasets import load_dataset, load_from_disk
 
 from .cutout import Cutout
 
+dataset_path = "./dataset" if os.path.exists("./dataset") else "../dataset"
 
 def get_cifar10_data():
     '''
@@ -47,10 +50,10 @@ def get_cifar10_data():
     ])
 
     # 下载MNIST训练集
-    train_dataset = datasets.CIFAR10(root='./dataset', train=True, transform=transform_train, download=True)
+    train_dataset = datasets.CIFAR10(root=dataset_path, train=True, transform=transform_train, download=True)
 
     # 下载MNIST测试集
-    test_dataset = datasets.CIFAR10(root='./dataset', train=False, transform=transform_test, download=True)
+    test_dataset = datasets.CIFAR10(root=dataset_path, train=False, transform=transform_test, download=True)
 
     # 创建数据加载器
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
@@ -68,10 +71,10 @@ def get_mnist_data():
     ])
 
     # 下载MNIST训练集
-    train_dataset = datasets.MNIST(root='./dataset', train=True, transform=transform_mnist, download=True)
+    train_dataset = datasets.MNIST(root=dataset_path, train=True, transform=transform_mnist, download=True)
 
     # 下载MNIST测试集
-    test_dataset = datasets.MNIST(root='./dataset', train=False, transform=transform_mnist, download=True)
+    test_dataset = datasets.MNIST(root=dataset_path, train=False, transform=transform_mnist, download=True)
 
     # 创建数据加载器
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
@@ -89,10 +92,10 @@ def get_fashionmnist_data():
     ])
 
     # 下载MNIST训练集
-    train_dataset = datasets.FashionMNIST(root='./dataset', train=True, transform=transform_mnist, download=True)
+    train_dataset = datasets.FashionMNIST(root=dataset_path, train=True, transform=transform_mnist, download=True)
 
     # 下载MNIST测试集
-    test_dataset = datasets.FashionMNIST(root='./dataset', train=False, transform=transform_mnist, download=True)
+    test_dataset = datasets.FashionMNIST(root=dataset_path, train=False, transform=transform_mnist, download=True)
 
     # 创建数据加载器
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
@@ -112,11 +115,10 @@ def get_sst2_data():
         vocab_len: 文本长度
 
     '''
-    cache_dir = '../dataset'
     dataset_name = 'sst2'
-    cached_dataset_path = cache_dir + '/' + dataset_name
+    cached_dataset_path = dataset_path + '/' + dataset_name
     try:
-        dataset = load_from_disk('../dataset/sst2/')
+        dataset = load_from_disk('cached_dataset_path')
     except:
         dataset = load_dataset(path=dataset_name, cache_dir=cached_dataset_path)
 
@@ -154,7 +156,3 @@ def get_sst2_data():
     test_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
     return train_dataloader, test_dataloader, max_token + 1, vocab_len
-
-
-if __name__ == '__main__':
-    get_sst2_data()
