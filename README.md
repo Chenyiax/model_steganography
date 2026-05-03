@@ -42,6 +42,20 @@ ext_raw, ext_bch = stego.decode(model)
 
 https://pan.quark.cn/s/8226327ae2eb?pwd=DPMT
 
+## Citation
+
+If you find this work useful for your research, please cite:
+
+```bibtex
+@article{xu2025steganography,
+  title={Steganography with constructing neural networks},
+  author={Xu, Chenyi and Huang, Lin and Qin, Chuan and Feng, Guorui and Zhang, Xinpeng},
+  journal={IEEE Transactions on Circuits and Systems for Video Technology},
+  year={2025},
+  publisher={IEEE}
+}
+```
+
 ## Disclaimer
 
 This software is for academic and research purposes only. The authors take no responsibility for any misuse of this technology.
